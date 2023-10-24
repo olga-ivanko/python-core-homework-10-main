@@ -1,5 +1,4 @@
 from my_classes import Field, Name, Phone, Record, AddressBook
-from datetime import datetime
 
 
 book = AddressBook()
@@ -14,9 +13,7 @@ def user_error(func):
         except KeyError:
             return "Unknown rec_id. Try another or use help."
         except ValueError:
-            return "Unknown or wrong format. Check phone and/or birthday"
-        except AttributeError:
-            return "Contacts was not found"
+            return "Unknown phone or wrong phone format"
     return inner
 
 
@@ -45,14 +42,7 @@ def func_add(*args):
         return f"Record alredy exist"
     elif new_phone == None: 
         return f"Check the phone: {phone}. Wrong format."
-    
-    if len(args) == 3:
-        new_birthday = datetime(year = int(args[2][6:]), month=int(args[2][3:5]), day=int(args[2][:2]))
-        contact_birtday = new_birthday.date().strftime("%d %B %Y")
-        new_record.add_birthday(new_birthday)
-        book[rec_id] = new_record
-        return f"Add record {rec_id = }, {new_phone = }, {contact_birtday = }"
-
+     
     book[rec_id] = new_record
     return f"Add record {rec_id = }, {new_phone = }"
 
@@ -67,7 +57,6 @@ def func_change(*args):
         return f"Check the phone: {args[1]}. Wrong format."    
     if new_phone == None: 
         return f"Check the phone: {args[2]}. Wrong format."
-    
     book.find(rec_id).edit_phone(old_phone, new_phone)
     return f"Record {rec_id} is updated with nes phone: {book.get(rec_id).phones[0]}"
 
@@ -85,20 +74,10 @@ def func_hello(*args):
 def func_show_all(*args):
     if len(book)==0:
         return f"Your contacts list is empty"
-    show = ""
-    for record in book.values():
-        show += f"{record}\n" 
-    return show
-
-
-def func_show(*args):
-    if len(book)==0:
-        return f"Your contacts list is empty"
-    stop = int(args[0])
-    line = ""
-    for rec in book.iterator(stop):
-        line += rec
-    return line
+    f_string_generator = lambda d: "\n".join([f"{rec_id}: {phone.phones[0]}" for rec_id, phone in d.items()])
+    result = f_string_generator(book) 
+    return result
+    
 
 def unknown(*args):
     return "Unknown command. Try again."
@@ -114,7 +93,6 @@ FUNCTIONS = {"hello" : func_hello,
             "change" : func_change, 
             "phone" : func_phone,
             "show all" : func_show_all,
-            "show" : func_show,
             "good bye" : func_good_bye, 
             "close" : func_good_bye, 
             "exit" : func_good_bye,
@@ -136,5 +114,5 @@ def main():
         print(current_func(*data))
         
         
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
